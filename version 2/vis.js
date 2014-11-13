@@ -10,6 +10,7 @@ function redditVis() {
 
   // initial setup only needs to happen once 
   // - we don't want to append multiple svg elements
+  d3.select("body").append("h1").text("Reddit Top 25")
   redditSvg = d3.select("body")
         .append("svg")
         .attr("width",document.body.clientWidth - 50)
@@ -33,6 +34,12 @@ function runVis(data) {
   // previous values attached
   var formatted = formatRedditData(data,previousData);
 
+  formatted.sort(function(a, b) {
+  		return b['score'] - a['score'];
+	});
+
+  h = formatted;
+
   // select our stories, pulling in previous ones to update
   // by selecting on the stories' class name
   var stories = redditSvg
@@ -53,14 +60,17 @@ function runVis(data) {
   stories.enter()
     .append("text")
     .text(function(d){return d.score + " " + d.diff + " " + d.title})
-    .attr("y", function(d,i){return 1.5*i + 1 + "em"})
-    .style("color","black");
+    
 
   // UPDATE + ENTER context
   // elements added via enter() will then be available on the update context, so
   // we can set attributes once, for entering and updating elements, here
   stories
+  	.transition()
+  	.duration(500)
     .text(function(d){return d.score + " " + d.diff + " " + d.title})
+    .attr("y", function(d,i){return 1.5*i + 1 + "em"})
+    .style("fill",function(d){if(d.diff > 0) {return "green"} else if (d.diff < 0){return "red"} else {return "black"}});
 
   // EXIT content
   stories.exit()
