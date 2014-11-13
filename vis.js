@@ -1,6 +1,7 @@
 var redditSvg;
 var previousData;
 
+
 var POLL_SPEED = 2000;
 
 function redditVis() {
@@ -10,11 +11,19 @@ function redditVis() {
 
   // initial setup only needs to happen once 
   // - we don't want to append multiple svg elements
-  d3.select("body").append("h1").text("Reddit Top 25")
+
+
+  circleSvg = d3.select("body")
+      .append("svg")
+         .attr("width", document.body.clientWidth - 50)
+        .attr("height",0.5 * document.body.clientWidth -100)
+
   redditSvg = d3.select("body")
         .append("svg")
-        .attr("width",document.body.clientWidth - 50)
-        .attr("height",document.body.clientWidth -50)
+        .attr("width", document.body.clientWidth - 50)
+        .attr("height",0.5 * document.body.clientWidth -50)
+
+
 }
 
 function requestData() {
@@ -33,13 +42,9 @@ function runVis(data) {
   // so we'll need to get data into the right format, with the
   // previous values attached
   var formatted = formatRedditData(data,previousData);
-
-  formatted.sort(function(a, b) {
-  		return b['score'] - a['score'];
-	});
-
   h = formatted;
 
+  formatted.sort(function(a,b){return b['diff'] - a['diff']})
   // select our stories, pulling in previous ones to update
   // by selecting on the stories' class name
   var stories = redditSvg
@@ -56,26 +61,83 @@ function runVis(data) {
        return d.id;
      });
 
+
+
   // ENTER context
   stories.enter()
     .append("text")
     .text(function(d){return d.score + " " + d.diff + " " + d.title})
+
     
+
 
   // UPDATE + ENTER context
   // elements added via enter() will then be available on the update context, so
   // we can set attributes once, for entering and updating elements, here
   stories
-  	.transition()
-  	.duration(500)
+    .transition()
+    .duration(500)
     .text(function(d){return d.score + " " + d.diff + " " + d.title})
     .attr("y", function(d,i){return 1.5*i + 1 + "em"})
-    .style("fill",function(d){if(d.diff > 0) {return "green"} else if (d.diff < 0){return "red"} else {return "black"}});
+    .style("fill", function(d) {
+                  if(d.diff > 0){
+                    return "purple";
+                  }
+                  else if(d.diff < 0){
+                    return "red";
+                  }
+                  else {
+                    return "steelblue";
+                  }
+                });
+
 
   // EXIT content
   stories.exit()
     .remove()
+
+
+  // var svg = d3.select("body")
+  //       .append("svg")
+  //       .attr("width","1500px")
+  //       .attr("height","400px");
+
+
+    var circles = circleSvg.selectAll("circle")
+           .data(formatted);
+           // .data(function(d){return d.diff});
+
+    circles.enter()
+      .append("circle")
+
+     circles
+       .transition()
+       .duration(500)
+      .attr("r",function(d){
+        if(d.score>4000){
+         return d.score*0.02 + "px";
+        }else if(d.score<3000){
+          return d.score*(0.01) + "px";
+        }else{
+          return "10px";
+        }        
+       })
+       .attr("cx",function() {
+          return 100 + Math.random() * (1000)
+        })
+       .attr("cy",function() {
+          return 100 + Math.random() * (300)
+        })
+      .style("fill",function(d){if(d.diff>0){
+         return "purple";
+        }else if(d.diff<0){
+          return "red";
+        }else{
+          return "steelblue";
+        }        
+       });
 }
+
 
 
 //////// PLEASE EDI runVis() /////////

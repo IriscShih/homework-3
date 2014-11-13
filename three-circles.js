@@ -10,6 +10,8 @@ function threeCircles() {
 					 .data([
 					 	{size: 5},
 					 	{size: 10},
+					 	{size: 15},
+					 	{size: 15},
 					 	{size: 15}
 					 ]);
 	// draw some circles
@@ -24,5 +26,6 @@ function threeCircles() {
 		   .attr("cy",function() {
 		   	 return 50 + Math.random() * (document.body.clientHeight - 50)
 		   })
+		   .style("fill","green")
 }
 
